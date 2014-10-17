@@ -1,0 +1,9 @@
+{
+  "name": "jsonrcs",
+  "version": "0.1.0",
+  "author": "yelo",
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "underscore": "^1.7.0"
+  }
+}
