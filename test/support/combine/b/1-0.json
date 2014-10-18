@@ -1,0 +1,20 @@
+{
+  "-": {
+    "users": {
+      "1": {
+        "extra": 0
+      },
+      "2": 0
+    }
+  },
+  "+": {
+    "users": {
+      "0": {
+        "name": "yoga"
+      }
+    },
+    "app": {
+      "name": "jsonrcs-example"
+    }
+  }
+}
