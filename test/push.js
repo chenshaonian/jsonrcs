@@ -16,7 +16,7 @@ describe('push', function () {
       fs.copySync(path.join(__dirname, './support/push/a/app.json'), path.join(__dirname, './support/push/a/tmp/app.json'));
     });
     after(function () {
-      fs.removeSync(path.join(__dirname, './support/push/a/tmp'));
+      // fs.removeSync(path.join(__dirname, './support/push/a/tmp'));
     });
     it('generate', function () {
       push(path.join(__dirname, './support/push/a/tmp/app.json'));

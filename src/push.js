@@ -91,12 +91,14 @@ var push = function (filePath) {
   var theRevision = readJSON(theRevisionPath);
 
   var theHistory = {};
-  var theLastHistory = {
-    '-': {},
-    '+': {}
-  };
+  var theLastHistory = {};
+
+  console.log('--',theRevision);
+
   _.each(theRevision, function (increment, tag) {
+    console.log('===', theHistory, increment);
     theHistory = combine(increment, theHistory);
+    console.log(theHistory);
     save(path.join(diffDir, getFileName(filePath, tag)), increment);
     theLastHistory = theHistory;
   });

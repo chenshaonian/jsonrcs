@@ -15,6 +15,7 @@ var combineUpdated = function (increment, older) {
     if (!_.isObject(val)) {
       older[key] = val;
     } else {
+      older[key] = older[key] || {};
       combineUpdated(val, older[key]);
     }
   });
