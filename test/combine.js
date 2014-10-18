@@ -4,8 +4,8 @@ var support = require('./support');
 var combine = require('../src/combine');
 
 var supports = {
-  a: support('combine/a'),
-  b: support('combine/b')
+  a: support('combine-and-diff/a'),
+  b: support('combine-and-diff/b')
 };
 
 

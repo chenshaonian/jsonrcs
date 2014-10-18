@@ -4,65 +4,27 @@ var support = require('./support');
 var diff = require('../src/diff');
 
 var supports = {
-  a: support('diff/a'),
-  b: support('diff/b')
+  a: support('combine-and-diff/a'),
+  b: support('combine-and-diff/b')
 };
 
 
 describe('diff', function () {
   describe('group-a', function () {
-    it('add', function () {
-      expect(diff(supports.a(1), supports.a(0))).be.deep.equal({
-        "-": {},
-        "+": {
-          "pineapple": "菠萝"
-        }
-      });
+    it('d- add', function () {
+      console.log(supports.a(1), supports.a(0));
+      expect(diff(supports.a(1), supports.a(0))).be.deep.equal(supports.a('1-0'));
     });
-    it('reduce and change', function () {
-      expect(diff(supports.a(2), supports.a(1))).be.deep.equal({
-        "-": {
-          "banana": 0
-        },
-        "+": {
-          "orange": "橘子"
-        }
-      });
+    it('d- reduce and change', function () {
+      expect(diff(supports.a(2), supports.a(1))).be.deep.equal(supports.a('2-1'));
     });
-    it('add, reduce and change', function () {
-      expect(diff(supports.a(2), supports.a(0))).be.deep.equal({
-        "-": {
-          "banana": 0
-        },
-        "+": {
-          "orange": "橘子",
-          "pineapple": "菠萝"
-        }
-      });
+    it('d- add, reduce and change', function () {
+      expect(diff(supports.a(2), supports.a(0))).be.deep.equal(supports.a('2-0'));
     });
   });
   describe('group-b', function () {
-    it('deep object', function () {
-      expect(diff(supports.b(1), supports.b(0))).be.deep.equal({
-        "-": {
-          "users": {
-            "1": {
-              "extra": 0
-            },
-            "2": 0
-          }
-        },
-        "+": {
-          "users": {
-            "0": {
-              "name": "yoga"
-            }
-          },
-          "app": {
-            "name": "jsonrcs-example"
-          }
-        }
-      });
+    it('d- deep object', function () {
+      expect(diff(supports.b(1), supports.b(0))).be.deep.equal(supports.b('1-0'));
     });
   });
 });
