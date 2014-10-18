@@ -50,8 +50,12 @@ var getDiffDir = function (filePath) {
   return path.join(path.dirname(filePath), DIFF_DIR);
 };
 
+var save = function (filePath, obj) {
+  return fs.writeFileSync(filePath, JSON.stringify(obj), 'utf-8');
+};
+
 var push = function (filePath) {
-  var diffDir, revisionDir, revisions, tag, newest;
+  var diffDir, revisionDir, revisionPath, revision, tag, newest, theHistory, theLastHistory;
 
   if (!fs.existsSync(filePath)) {
     throw new Error('file not found');
@@ -68,56 +72,30 @@ var push = function (filePath) {
   // load new revision
   newest = readJSON(filePath);
 
-  // load revisions of histories
-  // histories = fs.readdirSync(revisionDir).filter(function (fileName) {
-  //   console.log(fileName, filePath, isHistoryOfFile(fileName, filePath));
-  //   return isHistoryOfFile(fileName, filePath);
-  // }).map(function (fileName) {
-  //   return path.join(revisionDir, fileName);
-  // }).filter(function (filePath) {
-  //   return fs.statSync(filePath).isFile();
-  // }).map(function (filePath) {
-  //   return {
-  //     filename: path.basename(filePath),
-  //     content: readJSON(filePath)
-  //   };
-  // });
-
-
-  var theRevisionPath = path.join(revisionDir, path.basename(filePath));
-  if (!fs.existsSync(theRevisionPath)) {
-    save(theRevisionPath, {});
+  // load older revisions
+  revisionPath = path.join(revisionDir, path.basename(filePath));
+  if (!fs.existsSync(revisionPath)) {
+    save(revisionPath, {});
   }
-  var theRevision = readJSON(theRevisionPath);
+  revision = readJSON(revisionPath);
 
-  var theHistory = {};
-  var theLastHistory = {};
+  // init cache of older revision
+  theHistory = {};
+  theLastHistory = {};
 
-  console.log('--',theRevision);
-
-  _.each(theRevision, function (increment, tag) {
-    console.log('===', theHistory, increment);
+  _.each(revision, function (increment, tag) {
+    // assign to the revision
     theHistory = combine(increment, theHistory);
-    console.log(theHistory);
-    save(path.join(diffDir, getFileName(filePath, tag)), increment);
+    // save the diff file from the history to current
+    save(path.join(diffDir, getFileName(filePath, tag)), diff(newest, theHistory));
+    // cache the last file
     theLastHistory = theHistory;
   });
 
-  theRevision[tag] = diff(newest, theLastHistory);
+  // update the revision info file
+  revision[tag] = diff(newest, theLastHistory);
+  save(revisionPath, revision);
 
-  save(theRevisionPath, theRevision);
-
-  // _.each(histories, function (history) {
-  //   var increment = diff(newest, history.content);
-  //   save(path.join(diffDir, history.filename), increment);
-  // });
-
-  // save(path.join(revisionDir, getFileName(filePath, tag)), newest);
-
-};
-
-var save = function (filePath, obj) {
-  return fs.writeFileSync(filePath, JSON.stringify(obj), 'utf-8');
 };
 
 module.exports = push;
