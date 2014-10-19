@@ -10,6 +10,8 @@ var RIVISION_DIR = '_jsonrcs/rivision';
 
 var TIMESTAMP_LENGTH = 13;
 
+var EMPTY_RESIVION = [];
+
 var readJSON = function (filePath) {
   return JSON.parse(fs.readFileSync(filePath).toString());
 };
@@ -24,6 +26,12 @@ var isHistoryOfFile = function (history, filePath) {
     && (baseHistoryName[baseFileName.length] === '-')
     && (!!(baseHistoryName.substr(baseFileName.length + 1, TIMESTAMP_LENGTH).match(/^\d+$/)))
     && (history.slice(baseFileName.length + 1 + TIMESTAMP_LENGTH) === extFileName);
+};
+
+var generateDiffFile = function (newer, older, tag) {
+  var result = diff(newer, older);
+  result['tag'] = tag;
+  return result;
 };
 
 var getNewTag = function () {
@@ -55,7 +63,7 @@ var save = function (filePath, obj) {
 };
 
 var push = function (filePath) {
-  var diffDir, revisionDir, revisionPath, revision, tag, newest, theHistory, theLastHistory;
+  var diffDir, revisionDir, revisionPath, revision, tag, newest, newestDiff, theHistory, theLastHistory;
 
   if (!fs.existsSync(filePath)) {
     throw new Error('file not found');
@@ -75,7 +83,7 @@ var push = function (filePath) {
   // load older revisions
   revisionPath = path.join(revisionDir, path.basename(filePath));
   if (!fs.existsSync(revisionPath)) {
-    save(revisionPath, {});
+    save(revisionPath, EMPTY_RESIVION);
   }
   revision = readJSON(revisionPath);
 
@@ -83,18 +91,27 @@ var push = function (filePath) {
   theHistory = {};
   theLastHistory = {};
 
-  _.each(revision, function (increment, tag) {
+  _.each(revision, function (increment) {
+    var tag = increment.tag;
     // assign to the revision
     theHistory = combine(increment, theHistory);
     // save the diff file from the history to current
-    save(path.join(diffDir, getFileName(filePath, tag)), diff(newest, theHistory));
+    save(path.join(diffDir, getFileName(filePath, tag)), generateDiffFile(newest, theHistory, tag));
     // cache the last file
     theLastHistory = theHistory;
   });
 
-  // update the revision info file
-  revision[tag] = diff(newest, theLastHistory);
-  save(revisionPath, revision);
+  // update the revision
+  newestDiff = generateDiffFile(newest, theLastHistory, tag);
+  if (!_.isEmptyObject(newestDiff['-']) || !_.isEmptyObject(newestDiff['+'])) {
+    // update the revision info file
+    revision.push(newestDiff);
+    save(revisionPath, revision);
+
+    // create an empty diff file for last risivion
+    save(path.join(diffDir, getFileName(filePath, tag)), generateDiffFile({}, {}, tag));
+  }
+
 
 };
 

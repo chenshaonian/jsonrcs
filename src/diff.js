@@ -1,6 +1,6 @@
 var _ = require('./common')._;
 
-var compare = function (newer, older) {
+var diff = function (newer, older) {
   var result = {
     '-': {},
     '+': {}
@@ -47,4 +47,4 @@ var compare = function (newer, older) {
   return result;
 };
 
-module.exports = compare;
+module.exports = diff;
