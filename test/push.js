@@ -27,7 +27,7 @@ describe('push', function () {
     it('generate', function () {
       var readRevisionFile = function (tag) {
         if (arguments.length === 0) {
-          return fs.readJsonSync(path.join(__dirname, './support/push/a/tmp/_jsonrcs/rivision/app.json'));
+          return fs.readJsonSync(path.join(__dirname, './support/push/a/tmp/_jsonrcs/revision/app.json'));
         } else {
           return fs.readJsonSync(path.join(__dirname, './support/push/a/tmp/_jsonrcs/app-'+ tag + '.json'));
         }

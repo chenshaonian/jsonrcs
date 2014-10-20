@@ -6,7 +6,7 @@ var combine = require('./combine');
 var _ = require('./common')._;
 
 var DIFF_DIR = '_jsonrcs';
-var RIVISION_DIR = '_jsonrcs/rivision';
+var REVISION_DIR = '_jsonrcs/revision';
 
 var TIMESTAMP_LENGTH = 13;
 
@@ -51,7 +51,7 @@ var getFileName = function (filePath, tag) {
 };
 
 var getRevisionDir = function (filePath) {
-  return path.join(path.dirname(filePath), RIVISION_DIR);
+  return path.join(path.dirname(filePath), REVISION_DIR);
 };
 
 var getDiffDir = function (filePath) {
