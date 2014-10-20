@@ -1,6 +1,6 @@
-require(['superagent'], function (superagent) {
+define('jsonrcs', ['superagent'], function (superagent) {
 
-  var exports = {}
+  var exports = {};
 
   var DIFF_DIR = '_jsonrcs';
   var REVISION_DIR = '_jsonrcs/revision';
@@ -14,7 +14,7 @@ require(['superagent'], function (superagent) {
     };
   };
 
-  var getRevisionFilePath = exports.getRivisionFilePath = function (filePath, tag) {
+  var getRevisionFilePath = exports.getRevisionFilePath = function (filePath, tag) {
     var path = splitPath(filePath);
     return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
   };

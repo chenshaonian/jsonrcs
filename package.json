@@ -4,11 +4,14 @@
   "author": "yelo",
   "devDependencies": {
     "chai": "^1.9.2",
+    "mocha": "^1.21.5",
+    "mocha-phantomjs": "^3.5.1",
+    "phantomjs": "^1.9.11",
     "sinon": "^1.10.3",
     "underscore": "^1.7.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "make test-all"
   },
   "dependencies": {
     "fs-extra": "^0.12.0",

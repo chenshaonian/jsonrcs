@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var support = require('./support');
 
-var combine = require('../src/combine');
+var combine = require('../../src/combine');
 
 var supports = {
   a: support('combine-and-diff/a'),
