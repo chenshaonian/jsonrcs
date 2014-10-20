@@ -1,0 +1,6 @@
+{
+  "app": {
+    "name": "jsonrcs-alpha",
+    "private": true
+  }
+}

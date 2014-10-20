@@ -23,7 +23,6 @@ describe('combine', function () {
   });
   describe('group-b', function () {
     it('deep object', function () {
-      console.log(supports.b('1-0'));
       expect(combine(supports.b('1-0'), supports.b(0))).be.deep.equal(supports.b(1));
     });
   });

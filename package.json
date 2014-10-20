@@ -4,6 +4,7 @@
   "author": "yelo",
   "devDependencies": {
     "chai": "^1.9.2",
+    "sinon": "^1.10.3",
     "underscore": "^1.7.0"
   },
   "scripts": {

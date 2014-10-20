@@ -13,7 +13,6 @@ var supports = {
 describe('diff', function () {
   describe('group-a', function () {
     it('add', function () {
-      console.log(supports.a(1), supports.a(0));
       expect(diff(supports.a(1), supports.a(0))).be.deep.equal(supports.a('1-0'));
     });
     it('reduce and change', function () {
