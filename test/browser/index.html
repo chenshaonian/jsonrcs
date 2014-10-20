@@ -10,13 +10,15 @@
       requirejs.config({
         debug: true,
         baseUrl: './',
-        shim: {
-        },
         paths: {
+          text: './vendor/require-text',
           jsonrcs: '../../src/pull',
+          'jsonrcs/common': '../../src/common',
+          'jsonrcs/combine': '../../src/combine',
           superagent: './vendor/superagent',
           mocha: './vendor/mocha',
-          chai: './vendor/chai'
+          chai: './vendor/chai',
+          sinon: './vendor/sinon'
         },
         packages: [
         ]

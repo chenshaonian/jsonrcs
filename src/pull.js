@@ -1,4 +1,4 @@
-define('jsonrcs', ['superagent'], function (superagent) {
+define(['superagent', 'jsonrcs/combine'], function (superagent, combine) {
 
   var exports = {};
 
@@ -19,17 +19,19 @@ define('jsonrcs', ['superagent'], function (superagent) {
     return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
   };
 
-  // var pull = function (name, path, version) {
-  //   var file = path + name + '-to-last-from-' + version + '.json';
-  //   superagent.get(file).accept('json').end(function(res) {
-  //     render({dict: res.body});
-  //   });
+  var pull = exports.pull = function (filePath, head, callback) {
+    var path = getRevisionFilePath(filePath, head.tag);
+    superagent.get(path)
+      .accept('json')
+      .end(function(err, res) {
+        var increment = res.body;
+        var result = {};
+        result.data = combine(increment, head.data);
+        result.tag = increment.tag;
+        callback(result);
+      });
+  };
 
-  // };
-
-  // superagent.get('/json/dict.json').accept('json').end(function(res) {
-  //   render({dict: res.body});
-  // });
 
   return exports;
 
