@@ -1,0 +1,19 @@
+{
+  "name": "jsonrcs",
+  "repo": "imyelo/jsonrcs",
+  "description": "",
+  "version": "0.1.0",
+  "keywords": [
+    "rcs",
+    "revision",
+    "json"
+  ],
+  "scripts": [
+    "src/pull.js"
+  ],
+  "main": "src/pull.js",
+  "dependencies": {
+    "visionmedia/superagent": "*"
+  },
+  "license": "MIT"
+}

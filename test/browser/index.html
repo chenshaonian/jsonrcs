@@ -2,23 +2,19 @@
 <html>
   <head>
     <title>pull</title>
-    <link rel="stylesheet" href="./vendor/mocha.css">
-    <script src='./vendor/jquery.js'></script>
-    <script src='./vendor/underscore.js'></script>
-    <script src='./vendor/require.js'></script>
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css">
+    <script src='../../node_modules/lodash/dist/lodash.min.js'></script>
+    <script src='../../node_modules/requirejs/require.js'></script>
     <script>
       requirejs.config({
         debug: true,
         baseUrl: './',
         paths: {
-          text: './vendor/require-text',
-          jsonrcs: '../../src/pull',
-          'jsonrcs/common': '../../src/common',
-          'jsonrcs/combine': '../../src/combine',
-          superagent: './vendor/superagent',
-          mocha: './vendor/mocha',
-          chai: './vendor/chai',
-          sinon: './vendor/sinon'
+          text: '../../node_modules/requirejs-text/text',
+          mocha: '../../node_modules/mocha/mocha',
+          chai: '../../node_modules/chai/chai',
+          sinon: './vendor/sinon',
+          jsonrcs: '../../dest/client'
         },
         packages: [
         ]
