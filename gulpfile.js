@@ -11,7 +11,10 @@ var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
 
 var root = __dirname;
-var src = path.join(root, './src');
+var paths = {
+  src: path.join(root, './src'),
+  test: path.join(root, './test')
+};
 
 function gulpDuo (opts) {
 
@@ -48,14 +51,14 @@ function gulpDuo (opts) {
 
 
 gulp.task('client.js', function () {
-  gulp.src('./src/pull.js')
+  gulp.src('src/pull.js')
     .pipe(gulpDuo({standalone: 'jsonrcs'}))
     .pipe(rename({basename: 'client'}))
     .pipe(gulp.dest('./dest'));
 });
 
 gulp.task('test:browser', function () {
-  gulp.src(['./test/browser/index.html'])
+  gulp.src(['test/browser/index.html'])
     .pipe(mochaPhantomJS({
       reporter: 'list'
     }))
@@ -63,7 +66,7 @@ gulp.task('test:browser', function () {
 });
 
 gulp.task('test:server', function () {
-  gulp.src(['./test/server/*.js'])
+  gulp.src(['test/server/*.js'])
     .pipe(mocha({
       reporter: 'list'
     }))
@@ -73,6 +76,7 @@ gulp.task('test:server', function () {
 gulp.task('test', ['test:browser', 'test:server']);
 
 gulp.task('watch', function () {
-  gulp.watch(['./src/**'], ['client.js', 'test']);
+  gulp.watch(['src/**/*.js', 'test/**/*.{js,html,json}'], ['client.js', 'test'], function (event) {
+  });
 });
 

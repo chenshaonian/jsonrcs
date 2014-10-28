@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var path = require('path');
