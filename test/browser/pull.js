@@ -26,7 +26,7 @@ define(['./setup', './support/index'], function (setup, support) {
           it('should ok', function (done) {
             var subPath = '_jsonrcs/app-' + INIT_TIMESTAMP + '.json';
             var initObj = {
-              "data": $.extend({}, support('a/app-1.json')),
+              "data": _.cloneDeep(support('a/app-1.json')),
               "tag": INIT_TIMESTAMP
             };
             this.server.respondWith('GET', '/json/' + subPath, [200, {'Content-type': 'application/json'}, JSON.stringify(support('a/' + subPath))]);
