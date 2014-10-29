@@ -9,9 +9,10 @@
     "json"
   ],
   "scripts": [
-    "src/client/pull.js"
+    "src/client/pull.js",
+    "src/client/store.js"
   ],
-  "main": "src/pull.js",
+  "main": "src/client/pull.js",
   "dependencies": {
     "visionmedia/superagent": "*",
     "component/emitter": "*"
