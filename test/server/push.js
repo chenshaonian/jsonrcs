@@ -5,7 +5,7 @@ var path = require('path');
 var support = require('./support');
 var fs = require('fs-extra');
 
-var push = require('../../src/push');
+var push = require('../../src/server/push');
 
 var supports = {
   a: support('push/a')

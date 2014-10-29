@@ -51,14 +51,14 @@ function gulpDuo (opts) {
 
 
 gulp.task('client.js', function () {
-  gulp.src('src/pull.js')
+  gulp.src('src/client/pull.js')
     .pipe(gulpDuo({standalone: 'jsonrcs'}))
     .pipe(rename({basename: 'client'}))
     .pipe(gulp.dest('./dest'));
 });
 
-gulp.task('test:browser', function () {
-  gulp.src(['test/browser/index.html'])
+gulp.task('test:client', function () {
+  gulp.src(['test/client/index.html'])
     .pipe(mochaPhantomJS({
       reporter: 'list'
     }))
@@ -73,7 +73,7 @@ gulp.task('test:server', function () {
     .on('error', gutil.log);
 });
 
-gulp.task('test', ['test:browser', 'test:server']);
+gulp.task('test', ['test:client', 'test:server']);
 
 gulp.task('watch', function () {
   gulp.watch(['src/**/*.js', 'test/**/*.{js,html,json}'], ['client.js', 'test'], function (event) {
