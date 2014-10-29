@@ -1,283 +1,161 @@
+(function umd(require){
+  if ('object' == typeof exports) {
+    module.exports = require('1');
+  } else if ('function' == typeof define && define.amd) {
+    define(function(){ return require('1'); });
+  } else {
+    this['jsonrcs'] = require('1');
+  }
+})((function outer(modules, cache, entries){
 
-;(function(){
+  /**
+   * Global
+   */
 
-/**
- * Require the module at `name`.
- *
- * @param {String} name
- * @return {Object} exports
- * @api public
- */
+  var global = (function(){ return this; })();
 
-function require(name) {
-  var module = require.modules[name];
-  if (!module) throw new Error('failed to require "' + name + '"');
+  /**
+   * Require `name`.
+   *
+   * @param {String} name
+   * @param {Boolean} jumped
+   * @api public
+   */
 
-  if (!('exports' in module) && typeof module.definition === 'function') {
-    module.client = module.component = true;
-    module.definition.call(this, module.exports = {}, module);
-    delete module.definition;
+  function require(name, jumped){
+    if (cache[name]) return cache[name].exports;
+    if (modules[name]) return call(name, require);
+    throw new Error('cannot find module "' + name + '"');
   }
 
-  return module.exports;
-}
+  /**
+   * Call module `id` and cache it.
+   *
+   * @param {Number} id
+   * @param {Function} require
+   * @return {Function}
+   * @api private
+   */
 
-/**
- * Meta info, accessible in the global scope unless you use AMD option.
- */
+  function call(id, require){
+    var m = cache[id] = { exports: {} };
+    var mod = modules[id];
+    var name = mod[2];
+    var fn = mod[0];
 
-require.loader = 'component';
+    fn.call(m.exports, function(req){
+      var dep = modules[id][1][req];
+      return require(dep ? dep : req);
+    }, m, m.exports, outer, modules, cache, entries);
 
-/**
- * Find and require a module which name starts with the provided name.
- * If multiple modules exists, the highest semver is used. 
- * This function should be used for remote dependencies.
- */
+    // expose as `name`.
+    if (name) cache[name] = cache[id];
 
-require.latest = function (name) {
-  var available = Object.keys(require.modules).filter(function(moduleName) {
-    return moduleName.indexOf(name) !== -1
+    return cache[id].exports;
+  }
+
+  /**
+   * Require all entries exposing them on global if needed.
+   */
+
+  for (var id in entries) {
+    if (entries[id]) {
+      global[entries[id]] = require(id);
+    } else {
+      require(id);
+    }
+  }
+
+  /**
+   * Duo flag.
+   */
+
+  require.duo = true;
+
+  /**
+   * Expose cache.
+   */
+
+  require.cache = cache;
+
+  /**
+   * Expose modules
+   */
+
+  require.modules = modules;
+
+  /**
+   * Return newest require.
+   */
+
+   return require;
+})({
+1: [function(require, module, exports) {
+var superagent = require('visionmedia/superagent');
+var combine = require('../common/combine');
+var Store = require('./store');
+
+
+var exports = {};
+
+var DIFF_DIR = '_jsonrcs';
+var REVISION_DIR = '_jsonrcs/revision';
+
+var store = new Store();
+
+var splitPath = function (path) {
+  var match = path.match(/^(.*\/)*(.+?)(\.[^\.]+)?$/);
+  return {
+    dirname: match[1] || '',
+    basename: match[2] || '',
+    extname: match[3] || ''
+  };
+};
+
+var getRevisionFilePath = exports.getRevisionFilePath = function (filePath, tag) {
+  var path = splitPath(filePath);
+  return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
+};
+
+var request = function (path, tag, callback) {
+  superagent.get(getRevisionFilePath(path, tag))
+    .accept('json')
+    .end(function (err, res) {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, res.body);
+    });
+};
+
+var update = function (increment, head) {
+  var last = {};
+  last.data = combine(increment, head.data);
+  last.tag = increment.tag;
+  return last;
+};
+
+var pull = exports.pull = function (path, head, callback) {
+  request(path, head.tag, function (err, increment) {
+    if (err) {
+      return callback(err);
+    }
+    var last = update(increment, head);
+    store.set(path, last);
+    callback(null, last);
   });
-  if (available.length === 0) {
-    throw new Error('failed to find latest module of "' + name + '"');
-  }
-  return require(available.sort().pop());
-}
-/**
- * Registered modules.
- */
-
-require.modules = {};
-
-/**
- * Register module at `name` with callback `definition`.
- *
- * @param {String} name
- * @param {Function} definition
- * @api private
- */
-
-require.register = function (name, definition) {
-  require.modules[name] = {
-    definition: definition
-  };
 };
 
-/**
- * Define a module's exports immediately with `exports`.
- *
- * @param {String} name
- * @param {Generic} exports
- * @api private
- */
+module.exports = exports;
 
-require.define = function (name, exports) {
-  require.modules[name] = {
-    exports: exports
-  };
-};
-require.register("component~emitter@1.1.3", function (exports, module) {
-
-/**
- * Expose `Emitter`.
- */
-
-module.exports = Emitter;
-
-/**
- * Initialize a new `Emitter`.
- *
- * @api public
- */
-
-function Emitter(obj) {
-  if (obj) return mixin(obj);
-};
-
-/**
- * Mixin the emitter properties.
- *
- * @param {Object} obj
- * @return {Object}
- * @api private
- */
-
-function mixin(obj) {
-  for (var key in Emitter.prototype) {
-    obj[key] = Emitter.prototype[key];
-  }
-  return obj;
-}
-
-/**
- * Listen on the given `event` with `fn`.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.on =
-Emitter.prototype.addEventListener = function(event, fn){
-  this._callbacks = this._callbacks || {};
-  (this._callbacks[event] = this._callbacks[event] || [])
-    .push(fn);
-  return this;
-};
-
-/**
- * Adds an `event` listener that will be invoked a single
- * time then automatically removed.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.once = function(event, fn){
-  var self = this;
-  this._callbacks = this._callbacks || {};
-
-  function on() {
-    self.off(event, on);
-    fn.apply(this, arguments);
-  }
-
-  on.fn = fn;
-  this.on(event, on);
-  return this;
-};
-
-/**
- * Remove the given callback for `event` or all
- * registered callbacks.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.off =
-Emitter.prototype.removeListener =
-Emitter.prototype.removeAllListeners =
-Emitter.prototype.removeEventListener = function(event, fn){
-  this._callbacks = this._callbacks || {};
-
-  // all
-  if (0 == arguments.length) {
-    this._callbacks = {};
-    return this;
-  }
-
-  // specific event
-  var callbacks = this._callbacks[event];
-  if (!callbacks) return this;
-
-  // remove all handlers
-  if (1 == arguments.length) {
-    delete this._callbacks[event];
-    return this;
-  }
-
-  // remove specific handler
-  var cb;
-  for (var i = 0; i < callbacks.length; i++) {
-    cb = callbacks[i];
-    if (cb === fn || cb.fn === fn) {
-      callbacks.splice(i, 1);
-      break;
-    }
-  }
-  return this;
-};
-
-/**
- * Emit `event` with the given args.
- *
- * @param {String} event
- * @param {Mixed} ...
- * @return {Emitter}
- */
-
-Emitter.prototype.emit = function(event){
-  this._callbacks = this._callbacks || {};
-  var args = [].slice.call(arguments, 1)
-    , callbacks = this._callbacks[event];
-
-  if (callbacks) {
-    callbacks = callbacks.slice(0);
-    for (var i = 0, len = callbacks.length; i < len; ++i) {
-      callbacks[i].apply(this, args);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return array of callbacks for `event`.
- *
- * @param {String} event
- * @return {Array}
- * @api public
- */
-
-Emitter.prototype.listeners = function(event){
-  this._callbacks = this._callbacks || {};
-  return this._callbacks[event] || [];
-};
-
-/**
- * Check if this emitter has `event` handlers.
- *
- * @param {String} event
- * @return {Boolean}
- * @api public
- */
-
-Emitter.prototype.hasListeners = function(event){
-  return !! this.listeners(event).length;
-};
-
-});
-
-require.register("component~reduce@1.0.1", function (exports, module) {
-
-/**
- * Reduce `arr` with `fn`.
- *
- * @param {Array} arr
- * @param {Function} fn
- * @param {Mixed} initial
- *
- * TODO: combatible error handling?
- */
-
-module.exports = function(arr, fn, initial){  
-  var idx = 0;
-  var len = arr.length;
-  var curr = arguments.length == 3
-    ? initial
-    : arr[idx++];
-
-  while (idx < len) {
-    curr = fn.call(null, curr, arr[idx], ++idx, arr);
-  }
-  
-  return curr;
-};
-});
-
-require.register("visionmedia~superagent@0.20.0", function (exports, module) {
+}, {"visionmedia/superagent":2,"../common/combine":3,"./store":4}],
+2: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
 
-var Emitter = require('component~emitter@1.1.3');
-var reduce = require('component~reduce@1.0.1');
+var Emitter = require('emitter');
+var reduce = require('reduce');
 
 /**
  * Root reference for iframes.
@@ -1349,83 +1227,346 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-});
+}, {"emitter":5,"reduce":6}],
+5: [function(require, module, exports) {
 
-require.register("jsonrcs/src/client/pull.js", function (exports, module) {
-var superagent = require('visionmedia/superagent');
-var combine = require('../common/combine');
-var Store = require('./store');
+/**
+ * Expose `Emitter`.
+ */
 
+module.exports = Emitter;
 
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks[event] = this._callbacks[event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  var self = this;
+  this._callbacks = this._callbacks || {};
+
+  function on() {
+    self.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks[event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks[event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks[event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks[event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
+}, {}],
+6: [function(require, module, exports) {
+
+/**
+ * Reduce `arr` with `fn`.
+ *
+ * @param {Array} arr
+ * @param {Function} fn
+ * @param {Mixed} initial
+ *
+ * TODO: combatible error handling?
+ */
+
+module.exports = function(arr, fn, initial){  
+  var idx = 0;
+  var len = arr.length;
+  var curr = arguments.length == 3
+    ? initial
+    : arr[idx++];
+
+  while (idx < len) {
+    curr = fn.call(null, curr, arr[idx], ++idx, arr);
+  }
+  
+  return curr;
+};
+}, {}],
+3: [function(require, module, exports) {
+var util = require('./util');
+
+var _ = util._;
+
+var combineRemoved = function (increment, older) {
+  _.each(increment, function (val, key) {
+    if (val === 0) {
+      delete older[key];
+    } else if (_.isObject(val)) {
+      combineRemoved(val, older[key]);
+    }
+  });
+};
+
+var combineUpdated = function (increment, older) {
+  _.each(increment, function (val, key) {
+    if (!_.isObject(val)) {
+      older[key] = val;
+    } else {
+      older[key] = older[key] || {};
+      combineUpdated(val, older[key]);
+    }
+  });
+};
+
+var combine = function (increment, older) {
+  var result = _.deepClone(older);
+  combineRemoved(increment['-'], result);
+  combineUpdated(increment['+'], result);
+  return result;
+};
+
+module.exports = combine;
+
+}, {"./util":7}],
+7: [function(require, module, exports) {
 var exports = {};
 
-var DIFF_DIR = '_jsonrcs';
-var REVISION_DIR = '_jsonrcs/revision';
-
-var EMPTY_HEAD = {data: {}, tag: 0};
-
-var store = new Store();
-
-var splitPath = function (path) {
-  var match = path.match(/^(.*\/)*(.+?)(\.[^\.]+)?$/);
-  return {
-    dirname: match[1] || '',
-    basename: match[2] || '',
-    extname: match[3] || ''
+var _ = (function () {
+  var _ = {};
+  _.isObject = function (obj) {
+    return typeof obj === 'object';
   };
-};
 
-var getRevisionFilePath = exports.getRevisionFilePath = function (filePath, tag) {
-  var path = splitPath(filePath);
-  if (tag) {
-    return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
-  } else {
-    return filePath;
-  }
-};
+  _.isUndefined = function (obj) {
+    return typeof obj === 'undefined';
+  };
 
-var request = function (path, tag, callback) {
-  superagent.get(getRevisionFilePath(path, tag))
-    .accept('json')
-    .end(function (err, res) {
-      if (err) {
-        return callback(err);
+  _.isArray = function (obj) {
+    return obj instanceof Array;
+  };
+
+  _.has = function (obj, key) {
+    return obj !== null && hasOwnProperty.call(obj, key);
+  };
+
+  _.isEmptyObject = function (obj) {
+    for (var key in obj) if (_.has(obj, key)) return false;
+    return true;
+  };
+
+  _.each = function (obj, callback) {
+    var i, len;
+    if (_.isArray(obj)) {
+      for (i =0, len = obj.length; i < len; i++) {
+        callback(obj[i], i, obj);
       }
-      callback(null, res.body);
-    });
-};
-
-var update = function (increment, head) {
-  var last = {};
-  last.data = combine(increment, head.data);
-  last.tag = increment.tag;
-  return last;
-};
-
-var pull = exports.pull = function (path, head, callback) {
-  if (arguments.length < 3) {
-    callback = head;
-    head = store.get(path) || EMPTY_HEAD;
-  }
-  request(path, head.tag, function (err, increment) {
-    if (err) {
-      return callback(err);
+    } else {
+      for (i in obj) {
+        callback(obj[i], i, obj);
+      }
     }
-    var last = update(increment, head);
-    store.set(path, last);
-    callback(null, last);
-  });
+    return obj;
+  };
+
+  _.deepClone = function (obj) {
+    return JSON.parse(JSON.stringify(obj));
+  };
+  
+  return _;
+})();
+
+exports._ = _;
+
+exports.isUnchange = function (increment) {
+  return _.isEmptyObject(increment['-']) && _.isEmptyObject(increment['+']);
 };
 
 module.exports = exports;
 
-});
+}, {}],
+4: [function(require, module, exports) {
+var Emitter = require('component/emitter');
 
-if (typeof exports == "object") {
-  module.exports = require("jsonrcs");
-} else if (typeof define == "function" && define.amd) {
-  define("jsonrcs", [], function(){ return require("jsonrcs"); });
-} else {
-  (this || window)["jsonrcs"] = require("jsonrcs");
-}
-})()
+var PREFIX = '__JSONRCS__';
+
+var ERRORS = {
+  NOT_SUPPORTED: new Error('browser doesnot support localStorage'),
+  PARSE: new Error('json parser error')
+};
+
+var Store = function () {
+  if (!(this instanceof Store)) {
+    return new Store();
+  }
+  Emitter.call(this);
+  return this;
+};
+
+Emitter(Store.prototype);
+
+Store.prototype.avaliable = !!window.localStorage;
+
+Store.prototype._prefix = function (name) {
+  return PREFIX + name;
+};
+
+Store.prototype.set = function (name, data) {
+  if (!this.avaliable) {
+    this.emit('error', ERRORS.NOT_SUPPORTED);
+    return this;
+  }
+  window.localStorage.setItem(this._prefix(name), JSON.stringify(data));
+  return this;
+};
+
+Store.prototype.get = function (name) {
+  var val;
+  if (!this.avaliable) {
+    this.emit('error', ERRORS.NOT_SUPPORTED);
+    return;
+  }
+  val = window.localStorage.getItem(this._prefix(name));
+  if (null === val) {
+    return;
+  }
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    this.emit('error', ERRORS.PARSE);
+    return;
+  }
+};
+
+module.exports = Store;
+
+}, {"component/emitter":5}]}, {}, {"1":""})
+);

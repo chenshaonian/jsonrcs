@@ -9,11 +9,12 @@
     "json"
   ],
   "scripts": [
-    "src/pull.js"
+    "src/client/pull.js"
   ],
   "main": "src/pull.js",
   "dependencies": {
-    "visionmedia/superagent": "*"
+    "visionmedia/superagent": "*",
+    "component/emitter": "*"
   },
   "license": "MIT"
 }
