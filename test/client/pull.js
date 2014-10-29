@@ -30,7 +30,7 @@ define(['./setup', './support/index'], function (setup, support) {
               "tag": INIT_TIMESTAMP
             };
             this.server.respondWith('GET', '/json/' + subPath, [200, {'Content-type': 'application/json'}, JSON.stringify(support('a/' + subPath))]);
-            jsonrcs.pull('/json/app.json', initObj, function (obj) {
+            jsonrcs.pull('/json/app.json', initObj, function (err, obj) {
               expect(obj.data).to.be.not.deep.equal(support('a/app-1.json'));
               expect(obj.data).to.be.deep.equal(support('a/app-2.json'));
               done();
