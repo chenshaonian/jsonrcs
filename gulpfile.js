@@ -62,7 +62,7 @@ gulp.task('test:client', function () {
     .pipe(mochaPhantomJS({
       reporter: 'list'
     }))
-    .on('error', gutil.log);
+    .on('error', gutil.noop);
 });
 
 gulp.task('test:server', function () {
@@ -70,7 +70,7 @@ gulp.task('test:server', function () {
     .pipe(mocha({
       reporter: 'list'
     }))
-    .on('error', gutil.log);
+    .on('error', gutil.noop);
 });
 
 gulp.task('test', ['test:client', 'test:server']);

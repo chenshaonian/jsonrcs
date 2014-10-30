@@ -1,3 +1,3 @@
 module.exports = {
-  push: require('./lib/src/server/push')
+  push: require('./src/server/push')
 };

@@ -24,7 +24,7 @@ describe('push', function () {
       clock.restore();
       fs.removeSync(path.join(__dirname, './support/push/a/tmp'));
     });
-    it('generate', function () {
+    it.only('generate', function () {
       var readRevisionFile = function (tag) {
         if (arguments.length === 0) {
           return fs.readJsonSync(path.join(__dirname, './support/push/a/tmp/_jsonrcs/revision/app.json'));
@@ -41,6 +41,8 @@ describe('push', function () {
             "tag": "1413763200000"
           }
         ]);
+      expect(readRevisionFile(0))
+        .to.be.deep.equal({"-": {}, "+": {"app": {"name": "jsonrcs-alpha", "private": true}}, "tag": "1413763200000"});
       expect(readRevisionFile(INIT_TIMESTAMP))
         .to.be.deep.equal({"-": {}, "+": {}, "tag": "1413763200000"});
 
@@ -63,7 +65,7 @@ describe('push', function () {
           .to.be.deep.equal({
             "-": {"app": {"private": 0}},
             "+": {"app": {"name": "jsonrcs", "version": "1.0.0"}},
-            "tag": "1413763200000"
+            "tag": "1413763201000"
           });
         expect(readRevisionFile(INIT_TIMESTAMP + 1000))
           .to.be.deep.equal({"-": {}, "+": {}, "tag": "1413763201000"});
