@@ -23,10 +23,10 @@ var splitPath = function (path) {
 
 var getRevisionFilePath = exports.getRevisionFilePath = function (filePath, tag) {
   var path = splitPath(filePath);
-  if (tag) {
-    return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
-  } else {
+  if (arguments.length < 2) {
     return filePath;
+  } else {
+    return path.dirname + DIFF_DIR + '/' + path.basename + '-' + tag + path.extname;
   }
 };
 
