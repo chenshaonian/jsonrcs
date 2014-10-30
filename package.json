@@ -1,7 +1,7 @@
 {
   "name": "jsonrcs",
   "version": "0.1.0",
-  "author": "yelo",
+  "author": "imyelo",
   "devDependencies": {
     "chai": "^1.9.2",
     "duo": "^0.8.8",
@@ -25,5 +25,13 @@
   "dependencies": {
     "fs-extra": "^0.12.0",
     "mkdirp": "^0.5.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imyelo/jsonrcs"
+  },
+  "bugs": {
+    "url": "https://github.com/imyelo/jsonrcs/issues"
+  },
+  "main": "./index"
 }
