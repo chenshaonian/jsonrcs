@@ -3,7 +3,7 @@ define(['./setup', './support/index'], function (setup, support) {
   var INIT_TIMESTAMP = 1413763200000;
 
   setup(function (run) {
-    require(['jsonrcs', 'jsonrcs/common'], function (jsonrcs, common) {
+    require(['jsonrcs'], function (jsonrcs) {
       describe('browser', function () {
         describe('getRevisionPath', function () {
           var tag = 1413763200000;
@@ -26,11 +26,11 @@ define(['./setup', './support/index'], function (setup, support) {
           it('should ok', function (done) {
             var subPath = '_jsonrcs/app-' + INIT_TIMESTAMP + '.json';
             var initObj = {
-              "data": common._.deepClone(support('a/app-1.json')),
+              "data": _.cloneDeep(support('a/app-1.json')),
               "tag": INIT_TIMESTAMP
             };
             this.server.respondWith('GET', '/json/' + subPath, [200, {'Content-type': 'application/json'}, JSON.stringify(support('a/' + subPath))]);
-            jsonrcs.pull('/json/app.json', initObj, function (obj) {
+            jsonrcs.pull('/json/app.json', initObj, function (err, obj) {
               expect(obj.data).to.be.not.deep.equal(support('a/app-1.json'));
               expect(obj.data).to.be.deep.equal(support('a/app-2.json'));
               done();

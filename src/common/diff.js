@@ -1,4 +1,4 @@
-var _ = require('./common')._;
+var _ = require('./util')._;
 
 var diff = function (newer, older) {
   var result = {

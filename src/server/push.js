@@ -1,9 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
-var diff = require('./diff');
-var combine = require('./combine');
-var _ = require('./common')._;
+var diff = require('../common/diff');
+var combine = require('../common/combine');
+var _ = require('../common/util')._;
 
 var DIFF_DIR = '_jsonrcs';
 var REVISION_DIR = '_jsonrcs/revision';
@@ -22,10 +22,10 @@ var isHistoryOfFile = function (history, filePath) {
   var extHistoryName = path.extname(history);
   var baseHistoryName = path.basename(history, extHistoryName);
 
-  return (baseHistoryName.slice(0, baseFileName.length) === baseFileName)
-    && (baseHistoryName[baseFileName.length] === '-')
-    && (!!(baseHistoryName.substr(baseFileName.length + 1, TIMESTAMP_LENGTH).match(/^\d+$/)))
-    && (history.slice(baseFileName.length + 1 + TIMESTAMP_LENGTH) === extFileName);
+  return (baseHistoryName.slice(0, baseFileName.length) === baseFileName) &&
+    (baseHistoryName[baseFileName.length] === '-') &&
+    (!!(baseHistoryName.substr(baseFileName.length + 1, TIMESTAMP_LENGTH).match(/^\d+$/))) &&
+    (history.slice(baseFileName.length + 1 + TIMESTAMP_LENGTH) === extFileName);
 };
 
 var generateDiffFile = function (newer, older, tag) {
@@ -46,7 +46,9 @@ var getTagOfFile = function (fileName, originFileName) {
 var getFileName = function (filePath, tag) {
   var extName = path.extname(filePath);
   var baseName = path.basename(filePath, extName);
-  tag = tag || getNewTag();
+  if (arguments.length < 2) {
+    tag = getNewTag();
+  }
   return baseName  + '-' + tag + extName;
 };
 
@@ -70,7 +72,7 @@ var push = function (filePath) {
   }
 
   // generate new tag
-  tag = getNewTag();
+  newTag = getNewTag();
 
   // generate directory of diff and revision
   diffDir = getDiffDir(filePath);
@@ -96,20 +98,23 @@ var push = function (filePath) {
     // assign to the revision
     theHistory = combine(increment, theHistory);
     // save the diff file from the history to current
-    save(path.join(diffDir, getFileName(filePath, tag)), generateDiffFile(newest, theHistory, tag));
+    save(path.join(diffDir, getFileName(filePath, tag)), generateDiffFile(newest, theHistory, newTag));
     // cache the last file
     theLastHistory = theHistory;
   });
 
   // update the revision
-  newestDiff = generateDiffFile(newest, theLastHistory, tag);
+  newestDiff = generateDiffFile(newest, theLastHistory, newTag);
   if (!_.isEmptyObject(newestDiff['-']) || !_.isEmptyObject(newestDiff['+'])) {
     // update the revision info file
     revision.push(newestDiff);
     save(revisionPath, revision);
 
     // create an empty diff file for last risivion
-    save(path.join(diffDir, getFileName(filePath, tag)), generateDiffFile({}, {}, tag));
+    save(path.join(diffDir, getFileName(filePath, newTag)), generateDiffFile({}, {}, newTag));
+
+    // create an init diff file
+    save(path.join(diffDir, getFileName(filePath, 0)), generateDiffFile(newest, {}, newTag));
   }
 
 
